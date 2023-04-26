@@ -61,21 +61,23 @@ def constructBayesNet(gameState: hunters.GameState):
     variableDomainsDict = {}
 
     "*** YOUR CODE HERE ***"
-    variables = [GHOST0, OBS0, PAC, OBS1, GHOST1]
-    edges = [(0,1),(2,1),(2,3),(4,3)]
+    variables = [GHOST1, OBS1, OBS0, GHOST0, PAC]
+    edges = [(GHOST1,OBS1),(PAC,OBS1),(GHOST0,OBS0),(PAC,OBS0)]
     pos = []
     dist = []
+    grid = X_RANGE*Y_RANGE
+    print(X_RANGE,Y_RANGE)
     for i in range(X_RANGE):
         for j in range(Y_RANGE):
             pos.append((i,j))
-    for k in range(X_RANGE*Y_RANGE):
+    for k in range(0,grid):
         dist.append(k)
+    variableDomainsDict[PAC] = pos
     variableDomainsDict[GHOST0] = pos
     variableDomainsDict[GHOST1] = pos
     variableDomainsDict[OBS0] = dist
     variableDomainsDict[OBS1] = dist
-    variableDomainsDict[PAC] = pos
-    print(gameState)
+    #print(gameState)
     #TODO: Make it so that we add all possible entries that are within the max noise
     # for i in range(agents):
     #     dist = []
@@ -93,7 +95,7 @@ def constructBayesNet(gameState: hunters.GameState):
     "*** END YOUR CODE HERE ***"
 
     net = bn.constructEmptyBayesNet(variables, edges, variableDomainsDict)
-    print(net)
+    #print(net)
     return net
 
 
