@@ -64,14 +64,13 @@ def constructBayesNet(gameState: hunters.GameState):
     variables = [GHOST1, OBS1, OBS0, GHOST0, PAC]
     edges = [(GHOST1,OBS1),(PAC,OBS1),(GHOST0,OBS0),(PAC,OBS0)]
     pos = []
+    maxDist = X_RANGE + Y_RANGE - 1 + MAX_NOISE
     dist = []
-    grid = X_RANGE*Y_RANGE
-    print(X_RANGE,Y_RANGE)
+    for k in range(maxDist):
+        dist.append(k)
     for i in range(X_RANGE):
         for j in range(Y_RANGE):
             pos.append((i,j))
-    for k in range(0,grid):
-        dist.append(k)
     variableDomainsDict[PAC] = pos
     variableDomainsDict[GHOST0] = pos
     variableDomainsDict[GHOST1] = pos
