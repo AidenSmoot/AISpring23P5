@@ -102,56 +102,16 @@ def joinFactors(factors: List[Factor]):
 
 
     "*** YOUR CODE HERE ***"
-    # inputUnconditionedVariables = set({})
-    # inputConditionedVariables = set({})
-    # inputVariableDomainsDict = {}
-    # for factor in factors:
-    #     #print("getAllPossibleAssignmentDicts", factor.getAllPossibleAssignmentDicts()) #lists every possible variable combination
-    #     for variable in factor.unconditionedVariables():
-    #         inputUnconditionedVariables.add(variable)
-    #         if variable in inputConditionedVariables:
-    #             inputConditionedVariables.remove(variable)
-
-    #     for variable in factor.conditionedVariables():
-    #         if variable not in inputUnconditionedVariables:
-    #             inputConditionedVariables.add(variable)
-
-
-    #     listOfAssignmentDict = factor.variableDomainsDict()
-    #     key_list = list(listOfAssignmentDict.keys())
-    #     val_list = list(listOfAssignmentDict.values())
-
-    #     for i in range(len(key_list)):
-    #         inputVariableDomainsDict[key_list[i]] = val_list[i]
-
-
-    # inputUnconditionedVariables = list(inputUnconditionedVariables)
-    # inputConditionedVariables = list(inputConditionedVariables)
-
-    # answer = Factor(inputUnconditionedVariables, inputConditionedVariables, inputVariableDomainsDict)
-    # ourAllPossibleCombinations = answer.getAllPossibleAssignmentDicts()
-
-    # for i in range(len(ourAllPossibleCombinations)):
-    #     dict = ourAllPossibleCombinations[i]
-    #     prob = 1
-    #     for factor in factors:
-    #         prob = prob * factor.getProbability(dict)
-    #     answer.setProbability(dict, prob)
-
-    # return answer
     v = list(factors)
     inputU = set({})
     inputC = set({})
     inputD = {}
     for i in range(len(v)):
         u = v[i].unconditionedVariables()
-        #print("u =",u)
         c = v[i].conditionedVariables()
-        #print("c =",c)
         if i  == 0:
             d = v[i].variableDomainsDict()
             inputD = d
-            # print(inputD)
         for k in u:
             inputU.add(k)
             if k in inputC:
@@ -164,11 +124,8 @@ def joinFactors(factors: List[Factor]):
     for m in range(len(assigns)):
         curr =  assigns[m]
         prob = 1
-        #print(assign)
         for v in list(factors):
-            #print("PREV")
             prob = prob * v.getProbability(curr)
-            #print("AFTER")
         sol.setProbability(curr,prob)
     return sol
     "*** END YOUR CODE HERE ***"
