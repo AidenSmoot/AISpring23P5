@@ -76,21 +76,6 @@ def constructBayesNet(gameState: hunters.GameState):
     variableDomainsDict[GHOST1] = pos
     variableDomainsDict[OBS0] = dist
     variableDomainsDict[OBS1] = dist
-    #print(gameState)
-    #TODO: Make it so that we add all possible entries that are within the max noise
-    # for i in range(agents):
-    #     dist = []
-    #     for j in range(1,X_RANGE):
-    #         for k in range(1,Y_RANGE):
-    #             if i == 0:
-    #                 if abs(j-pos[0]) <= MAX_NOISE and abs(k-pos[1]) <= MAX_NOISE:
-    #                     dist.append((abs(j-pos[0]),abs(k-pos[1])))
-    #             else:
-    #                 gPos = gameState.getGhostPosition(i)
-    #                 if abs(j-gPos[0]) <= MAX_NOISE and abs(k-gPos[1]) <= MAX_NOISE:
-    #                     dist.append((abs(j-gPos[0]),abs(k-gPos[1])))
-    #                 dist.append((abs(j-gPos[0]),abs(k-gPos[1])))
-    #     variableDomainsDict[PAC] = dist
     "*** END YOUR CODE HERE ***"
 
     net = bn.constructEmptyBayesNet(variables, edges, variableDomainsDict)
