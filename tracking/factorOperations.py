@@ -102,31 +102,31 @@ def joinFactors(factors: List[Factor]):
 
 
     "*** YOUR CODE HERE ***"
-    v = list(factors)
-    inputU = set({})
-    inputC = set({})
-    inputD = {}
-    for i in range(len(v)):
-        u = v[i].unconditionedVariables()
-        c = v[i].conditionedVariables()
+    v = list(factors) #put factors into an accessible format
+    inputU = set({}) #initialize unconditioned set
+    inputC = set({}) #initialize conditioned set
+    inputD = {} #initialize domain dictionary
+    for i in range(len(v)): #iterate over factors
+        u = v[i].unconditionedVariables() #create list to iterate over
+        c = v[i].conditionedVariables() #create list to iterate over
         if i  == 0:
-            d = v[i].variableDomainsDict()
+            d = v[i].variableDomainsDict() #all domain dicts are the same so we only set this once
             inputD = d
         for k in u:
-            inputU.add(k)
-            if k in inputC:
-                inputC.remove(k)
+            inputU.add(k) #add variable if it is unconditioned
+            if k in inputC: #if at any point it was conditioned...
+                inputC.remove(k) #remove it
         for j in c:
-            if j not in inputU:
-                inputC.add(j)
-    sol = Factor(inputU,inputC,inputD)
-    assigns = sol.getAllPossibleAssignmentDicts()
-    for m in range(len(assigns)):
-        curr =  assigns[m]
-        prob = 1
+            if j not in inputU: #check if the variable in conditioned is not ever unconditioned then...
+                inputC.add(j) #add it to conditioned
+    sol = Factor(inputU,inputC,inputD) #set up a Factor with created sets
+    assigns = sol.getAllPossibleAssignmentDicts() #get all possible assignments
+    for m in range(len(assigns)): #iterate over all assignments for our solution
+        curr =  assigns[m] #look at one specific assignment
+        prob = 1 #set probability
         for v in list(factors):
-            prob = prob * v.getProbability(curr)
-        sol.setProbability(curr,prob)
+            prob = prob * v.getProbability(curr) #multiply current probability by all of the factors
+        sol.setProbability(curr,prob) #set the probability for that assignment to what we calculated
     return sol
     "*** END YOUR CODE HERE ***"
 
@@ -178,24 +178,24 @@ def eliminateWithCallTracking(callTrackingList=None):
                     "unconditionedVariables: " + str(factor.unconditionedVariables()))
 
         "*** YOUR CODE HERE ***"
-        c = factor.conditionedVariables()
-        u = factor.unconditionedVariables()
+        c = factor.conditionedVariables() #initialize conditioned variables
+        u = factor.unconditionedVariables() #initialize unconditioned variables
         if eliminationVariable in u:
-            u.remove(eliminationVariable)
-        sol = Factor(u,c,factor.variableDomainsDict())
-        currDict = sol.getAllPossibleAssignmentDicts()
-        prevDict = factor.getAllPossibleAssignmentDicts()
+            u.remove(eliminationVariable) #remove the elimination variable from unconditioned
+        sol = Factor(u,c,factor.variableDomainsDict()) #create a new factor without the eliminated variable
+        currDict = sol.getAllPossibleAssignmentDicts() #get the new assignment dict
+        prevDict = factor.getAllPossibleAssignmentDicts() #get the old assignment dict
         for i in range(len(currDict)):
-            p = 0
+            p = 0 #initialize probability to 0 and we will sum this time
             for j in range(len(prevDict)):
                 same = True
                 for key in currDict[i]:
-                    if currDict[i][key] != prevDict[j][key]:
+                    if currDict[i][key] != prevDict[j][key]: #if the assignments are different between iterations break
                         same = False
                         break
-                if same:
+                if same: #otherwise we want to sum the probability
                     p = p + factor.getProbability(prevDict[j])
-            sol.setProbability(currDict[i], p)
+            sol.setProbability(currDict[i], p) #set probability
         return sol
         "*** END YOUR CODE HERE ***"
 

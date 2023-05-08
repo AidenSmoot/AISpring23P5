@@ -61,21 +61,21 @@ def constructBayesNet(gameState: hunters.GameState):
     variableDomainsDict = {}
 
     "*** YOUR CODE HERE ***"
-    variables = [GHOST1, OBS1, OBS0, GHOST0, PAC]
-    edges = [(GHOST1,OBS1),(PAC,OBS1),(GHOST0,OBS0),(PAC,OBS0)]
+    variables = [GHOST1, OBS1, OBS0, GHOST0, PAC] #list variables out
+    edges = [(GHOST1,OBS1),(PAC,OBS1),(GHOST0,OBS0),(PAC,OBS0)] #list out edges as tuples
     pos = []
-    maxDist = X_RANGE + Y_RANGE - 1 + MAX_NOISE
+    maxDist = X_RANGE + Y_RANGE - 1 + MAX_NOISE #furthest it can be is the ranges summed with the noise and -1 because 0 indexed
     dist = []
     for k in range(maxDist):
-        dist.append(k)
+        dist.append(k) #creating an array of all possible distances
     for i in range(X_RANGE):
         for j in range(Y_RANGE):
-            pos.append((i,j))
-    variableDomainsDict[PAC] = pos
-    variableDomainsDict[GHOST0] = pos
-    variableDomainsDict[GHOST1] = pos
-    variableDomainsDict[OBS0] = dist
-    variableDomainsDict[OBS1] = dist
+            pos.append((i,j)) #create an array of tuples for all locations within range
+    variableDomainsDict[PAC] = pos #pacman can be at any position
+    variableDomainsDict[GHOST0] = pos #the ghost can be at any position
+    variableDomainsDict[GHOST1] = pos #the ghost can be at any position
+    variableDomainsDict[OBS0] = dist #we observe the distance between pacman and the ghost
+    variableDomainsDict[OBS1] = dist #we observe the distance between pacman and the ghost
     "*** END YOUR CODE HERE ***"
 
     net = bn.constructEmptyBayesNet(variables, edges, variableDomainsDict)
@@ -197,16 +197,16 @@ def inferenceByVariableEliminationWithCallTracking(callTrackingList=None):
             eliminationOrder = sorted(list(eliminationVariables))
 
         "*** YOUR CODE HERE ***"
-        cpts = bayesNet.getAllCPTsWithEvidence(evidenceDict)
+        cpts = bayesNet.getAllCPTsWithEvidence(evidenceDict) #create a list of all conditional probability tables
         for i in range(len(eliminationOrder)):
-            cpts, table = joinFactorsByVariable(cpts, eliminationOrder[i])
-            if len(list(table.unconditionedVariables())) == 1:
+            cpts, table = joinFactorsByVariable(cpts, eliminationOrder[i]) #join factors to eliminate the variable at eliminationorder[i]
+            if len(list(table.unconditionedVariables())) == 1: #edge case where there is only one unconditioned variable
                 evidenceDict = cpts
             else:
-                table = eliminate(table, eliminationOrder[i])
-                evidenceDict = cpts
-                evidenceDict.append(table)
-        return normalize(joinFactors(evidenceDict))
+                table = eliminate(table, eliminationOrder[i]) #eliminate the variable
+                evidenceDict = cpts #reset evidenceDict now so that it has the variable removed
+                evidenceDict.append(table) #add the table of the factor without the eliminated variable
+        return normalize(joinFactors(evidenceDict)) #normalize the factor after joining on evidence dict
         "*** END YOUR CODE HERE ***"
 
 
@@ -347,13 +347,13 @@ class DiscreteDistribution(dict):
         {}
         """
         "*** YOUR CODE HERE ***"
-        if self:
-            sum = self.total()
-            if sum == 0.0:
+        if self: #check if it is empty
+            sum = self.total() #if not get total
+            if sum == 0.0: #another edge case where sum is 0
                 return
-        else:
+        else: #if empty return
             return
-        for key in self.keys():
+        for key in self.keys(): #otherwise set probabilities to have same ratio but now they sum to one
             self[key] = self.get(key)/sum
         return self
         "*** END YOUR CODE HERE ***"
@@ -380,7 +380,7 @@ class DiscreteDistribution(dict):
         0.0
         """
         "*** YOUR CODE HERE ***"
-        return random.choices(self.keys(), self.values())
+        return random.choices(self.keys(), self.values()) #pick a key based on a value
         "*** END YOUR CODE HERE ***"
 
 
@@ -456,13 +456,13 @@ class InferenceModule:
         """
         "*** YOUR CODE HERE ***"
         prob = 0.0
-        if ghostPosition == jailPosition:
-            if noisyDistance == None:
+        if ghostPosition == jailPosition: #see if ghost is in jail
+            if noisyDistance == None: #if there is no noise, it is in jail
                 prob = 1.0
         else:
-            if noisyDistance != None:
-                trueDist = manhattanDistance(pacmanPosition,ghostPosition)
-                prob = busters.getObservationProbability(noisyDistance, trueDist)
+            if noisyDistance != None: #still have check that noisyDistnace is not None
+                trueDist = manhattanDistance(pacmanPosition,ghostPosition) #actual dist using manhattan
+                prob = busters.getObservationProbability(noisyDistance, trueDist) #obtain probability and return
         return prob
         "*** END YOUR CODE HERE ***"
 
@@ -576,13 +576,13 @@ class ExactInference(InferenceModule):
         position is known.
         """
         "*** YOUR CODE HERE ***"
-        for pos in self.allPositions:
+        for pos in self.allPositions: #look at all positions
             belief = self.beliefs
-            pac = gameState.getPacmanPosition()
-            jail = self.getJailPosition()
-            obs = self.getObservationProb(observation, pac, pos, jail)
-            curr = belief.__getitem__(pos) * obs
-            belief[pos] = curr
+            pac = gameState.getPacmanPosition() #set pacman position
+            jail = self.getJailPosition() #set jail position
+            obs = self.getObservationProb(observation, pac, pos, jail) #obtain probability
+            curr = belief.__getitem__(pos) * obs #update belief using inference equation
+            belief[pos] = curr #update belief because we have a new obs
         "*** END YOUR CODE HERE ***"
         self.beliefs.normalize()
     
@@ -600,7 +600,17 @@ class ExactInference(InferenceModule):
         current position is known.
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        newPosDisDict = {}
+        for pos in self.allPositions:
+            newPosDisDict[pos] = self.getPositionDistribution(gameState,pos) #set all values in the dictionary
+        updateBeliefs = {}
+        for curr in self.allPositions:
+            val = 0
+            for old in self.allPositions:
+                val += newPosDisDict[old].__getitem__(curr) * self.beliefs.__getitem__(old) #updating our belief based on beliefs old positions and our current pos
+            updateBeliefs[curr] = val
+        self.beliefs = DiscreteDistribution(updateBeliefs) #change beliefs to be updated for the next time step this is called
+        self.beliefs.normalize() #normalize it so the probabilities work and make sense
         "*** END YOUR CODE HERE ***"
 
     def getBeliefDistribution(self):
